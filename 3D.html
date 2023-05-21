@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulacion 3D de C1-T1 de la medula</title>
+    <style>
+        body { margin: 0; background-color: black; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script>
+        let scene, camera, renderer, controls;
+        let separation = 2;
+        let imageSize = 0.005;
+        let threshold = 0.1;
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+            renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            function handleImageLoad(image, position) {
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = image.width;
+                canvas.height = image.height;
+
+                context.drawImage(image, 0, 0);
+
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+
+                const bumpMapCanvas = document.createElement('canvas');
+                const bumpMapContext = bumpMapCanvas.getContext('2d');
+                bumpMapCanvas.width = image.width;
+                bumpMapCanvas.height = image.height;
+
+                bumpMapContext.drawImage(image, 0, 0);
+
+                const bumpImageData = bumpMapContext.getImageData(0, 0, canvas.width, canvas.height);
+                const bumpData = bumpImageData.data;
+
+                for (let i = 0; i < data.length; i += 4) {
+                    const red = data[i];
+                    const green = data[i + 1];
+                    const blue = data[i + 2];
+
+                    const opacity = (red + green + blue) / (255 * threshold) / 3;
+                    data[i + 3] = opacity * 255;
+
+                    const gray = (red + green + blue) * 3;
+                    data[i] = gray;
+                    data[i+1] = gray;
+                    data[i+2] = gray;
+
+                    const bumpMapValue = (red - green + blue) / 2 + 0.5;
+
+                    bumpData[i] = bumpMapValue;
+                    bumpData[i+1] = bumpMapValue;
+                    bumpData[i+2] = bumpMapValue;
+                }
+
+                context.putImageData(imageData, 0, 0);
+                bumpMapContext.putImageData(bumpImageData, 0, 0);
+
+                const texture = new THREE.CanvasTexture(canvas);
+                const bumpMapTexture = new THREE.CanvasTexture(bumpMapCanvas);
+
+                const material = new THREE.MeshPhongMaterial({
+                    map: texture,
+                    bumpMap: bumpMapTexture,
+                    bumpScale: .4,
+                    side: THREE.DoubleSide,
+                    transparent: true
+                });
+
+                const plane = new THREE.Mesh(new THREE.PlaneGeometry(image.width * imageSize, image.height * imageSize), material);
+                plane.position.copy(position);
+                scene.add(plane);
+            }
+
+            const imageSources = [
+                './Representatives/IMG1.jpg',
+                './Representatives/IMG2.jpg',
+                './Representatives/IMG3.jpg',
+                './Representatives/IMG4.jpg',
+                './Representatives/IMG5.jpg',
+                './Representatives/IMG6.jpg',
+                './Representatives/IMG7.jpg',
+                './Representatives/IMG8.jpg',
+                './Representatives/IMG9.jpg'
+            ];
+
+            const positions = imageSources.map((_, index) => new THREE.Vector3(0, 0, index * separation));
+
+            const center = new THREE.Vector3(0, 0, (positions.length - 1) * separation / 2);
+
+            positions.forEach(position => position.sub(center));
+
+            imageSources.forEach((src, index) => {
+                const image = new Image();
+                image.onload = () => handleImageLoad(image, positions[index]);
+                image.src = src;
+            });
+
+            camera.position.z = 8;
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.25;
+
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(1, 1, 1);
+            scene.add(light);
+            const light1 = new THREE.DirectionalLight(0xffffff, 1);
+            light1.position.set(-1, -1, -1);
+            scene.add(light1);
+
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+            }
+
+            animate();
+        }
+
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
