@@ -5,3 +5,6 @@
 Primero de todo nos dirigiremos a la carpeta Parts, dentro a la primera carpeta y seguidamente en bda. Ahi veremos un script donde si vamos ejecutando celda por celda conseguiremos ver plots de los diferentes preprocesados de imagenes para intentar mejorar el stitching y finalmente una prueba donde hacemos un stitching con los diferentes procesados de imagenes.
 
 Por otra parte, el otro fichero de stitch se encuentra en el main que es el encargado de generar los stichings de todas las partes las diferentes imagenes.
+
+### Segmentación
+Para utilizar la segmentación de imagenes abrimos el archivo Separador.ipynb, las primeras celdas son para la segmentación mediante filtro Otsu, a partir de aqui, las siguientes celdas son usando el algoritmos K-means, la primera genera los datos de entrenamiento del algoritmo, la siguiente entrena el algoritmo, despues se ejecuta el predict para cada imagen a segmentar, visalizamos todas las imagenes segmentadas, finalmente, al ejecutar la ultima celda, esta guardar la imagenes de la sustancia blanca en una carpeta llamada S_blanca.
