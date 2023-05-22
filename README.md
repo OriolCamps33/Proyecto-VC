@@ -17,3 +17,7 @@ Además, se guardaran imágenes con el resultado dentro de la carpeta Detector_a
 
 ### 3D
 Para ver el 3D hay que ejecutar un servidor propio, ya que no tenemos cargada la pagina a ningun servidor, recomendamos el live server de VS-code ya que al tener el directorio cargado en el VS-code podremos ejecutar el live server, se nos abrira el explorador web y finalmente abriremos el 3D.html, puede que tarde un poco en renderizar la superposicion de imagenmes ya que crea el bumpMap, pero luego de que carguen las imagenes deberia ir correctamente.
+
+### 3D_V2
+Hemos creado un repositorio github donde si entras al siguiente link te deberia cargar el modelo 3D correctamente :
+https://jhoegabri.github.io/
